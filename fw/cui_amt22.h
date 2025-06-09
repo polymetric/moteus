@@ -64,9 +64,32 @@ class CuiAmt22 {
         cs_->set();
         value =
           ((static_cast<uint16_t>(buffer_[0]) << 8)
-          | static_cast<uint16_t>(buffer_[1]))
-          & 0x3fff;
-        *value_ptr = value;
+          | static_cast<uint16_t>(buffer_[1]));
+
+        // check parity
+        if ((value >> 15 & 1) != !(
+            (value >> 13 & 1) ^
+            (value >> 11 & 1) ^
+            (value >> 9  & 1) ^
+            (value >> 7  & 1) ^
+            (value >> 5  & 1) ^
+            (value >> 3  & 1) ^
+            (value >> 1  & 1))
+          || (value >> 14 & 1) != !(
+            (value >> 12 & 1) ^
+            (value >> 10 & 1) ^
+            (value >>  8 & 1) ^
+            (value >>  6 & 1) ^
+            (value >>  4 & 1) ^
+            (value >>  2 & 1) ^
+            (value >>  0 & 1))
+        ) {
+          // parity failed, just wait for the next sample
+          state_ = State::kClearCs;
+          return false;
+        }
+
+        *value_ptr = value & 0x3fff;
         state_ = State::kClearCs;
         return true;
       }
