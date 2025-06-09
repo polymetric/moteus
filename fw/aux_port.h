@@ -336,7 +336,7 @@ class AuxPort {
     }
 
     if (!cui_amt22_ && cui_amt22_options_) {
-      if (timer_->read_ms() > 200) {
+      if (timer_->read_ms() > 10) {
         __disable_irq();
         status_.error = aux::AuxError::kNone;
 
