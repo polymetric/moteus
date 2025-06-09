@@ -162,7 +162,6 @@ class Stm32Spi {
     const uint8_t result = *reinterpret_cast<volatile uint8_t*>(&(spi->DR));
     while (((spi->SR & SPI_SR_TXE) == 0) && timeout) { timeout--; }
     while (((spi->SR & SPI_SR_BSY) != 0) && timeout) { timeout--; }
-    spi->CR1 &= ~(SPI_CR1_SPE);
 
     return result;
   }
