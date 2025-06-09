@@ -44,25 +44,25 @@ class CuiAmt22 {
     uint16_t value = 0;
     switch (state_) {
       case State::kClearCs: {
-          cs_->clear();
-          state_ = State::kStartFirstByte;
+        cs_->clear();
+        state_ = State::kStartFirstByte;
         return false;
       }
       case State::kStartFirstByte: {
-          spi_.start_byte(0x00);
-          state_ = State::kStartSecondByte;
+        spi_.start_byte(0x00);
+        state_ = State::kStartSecondByte;
         return false;
       }
-			case State::kStartSecondByte: {
+      case State::kStartSecondByte: {
         buffer_[0] = spi_.finish_byte();
-      	spi_.start_byte(0x00);
-      	state_ = State::kFinishSecondByte;
+        spi_.start_byte(0x00);
+        state_ = State::kFinishSecondByte;
         return false;
       }
       case State::kFinishSecondByte: {
         buffer_[1] = spi_.finish_byte();
         cs_->set();
-        value = 
+        value =
           ((static_cast<uint16_t>(buffer_[0]) << 8)
           | static_cast<uint16_t>(buffer_[1]))
           & 0x3fff;
@@ -70,10 +70,10 @@ class CuiAmt22 {
         state_ = State::kClearCs;
         return true;
       }
-			default: {
-				MJ_ASSERT(false);
-				return false;
-			}
+      default: {
+        MJ_ASSERT(false);
+        return false;
+      }
     }
   }
 
@@ -81,12 +81,12 @@ class CuiAmt22 {
   Stm32Spi spi_;
   std::optional<Stm32DigitalOutput> cs_;
 
-	enum class State {
-	  kClearCs,
-		kStartFirstByte,
-		kStartSecondByte,
-		kFinishSecondByte,
-	};
+  enum class State {
+    kClearCs,
+    kStartFirstByte,
+    kStartSecondByte,
+    kFinishSecondByte,
+  };
 
   State state_ = State::kClearCs;
   uint32_t last_byte_finished_us_ = 0;
