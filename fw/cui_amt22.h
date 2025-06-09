@@ -56,7 +56,7 @@ class CuiAmt22 {
       case State::kStartFirstByte: {
         if (delta_us >= AMT22_TIME_AFTER_CS) {
           spi_.start_byte(0x00);
-          state_ = State::kFinishFirstByte;
+          state_ = State::kStartSecondByte;
         }
         return false;
       }
@@ -93,7 +93,6 @@ class CuiAmt22 {
 	enum class State {
 	  kClearCs,
 		kStartFirstByte,
-		kFinishFirstByte,
 		kStartSecondByte,
 		kFinishSecondByte,
 	};
