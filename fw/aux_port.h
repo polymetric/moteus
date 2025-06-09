@@ -153,14 +153,6 @@ class AuxPort {
           status_.spi.nonce += 1;
           break;
         }
-        case SampleType::kCuiAmt22: {
-          const auto updated = cui_amt22_->ISR_Update(&status_.spi.value);
-          if (updated) {
-            status_.spi.active = true;
-            status_.spi.nonce += 1;
-          }
-          break;
-        }
         case SampleType::kIcPz: {
           ic_pz_->ISR_MaybeFinishSample();
           const auto& status = ic_pz_->status();
@@ -231,6 +223,10 @@ class AuxPort {
         }
         case SampleType::kCuiAmt21: {
           cui_amt21_->ISR_Update(&status_.uart);
+          break;
+        }
+        case SampleType::kCuiAmt22: {
+          cui_amt22_->ISR_Update(&status_.spi);
           break;
         }
         case SampleType::kI2c: {

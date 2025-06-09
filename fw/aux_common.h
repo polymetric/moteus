@@ -70,12 +70,15 @@ struct Spi {
 
     uint8_t ic_pz_bits = 0;
 
+    uint16_t checksum_errors = 0;
+
     template <typename Archive>
     void Serialize(Archive* a) {
       a->Visit(MJ_NVP(active));
       a->Visit(MJ_NVP(value));
       a->Visit(MJ_NVP(nonce));
       a->Visit(MJ_NVP(ic_pz_bits));
+      a->Visit(MJ_NVP(checksum_errors));
     }
   };
 };

@@ -21,6 +21,7 @@
 #include "fw/ccm.h"
 #include "fw/moteus_hw.h"
 #include "fw/stm32_spi.h"
+#include "fw/aux_common.h"
 
 
 namespace moteus {
@@ -40,7 +41,7 @@ class CuiAmt22 {
   }
 
   /// @return true if we finished reading the sensor and updated the value
-  bool ISR_Update(uint32_t* value_ptr) MOTEUS_CCM_ATTRIBUTE {
+  bool ISR_Update(aux::Spi::Status *status) MOTEUS_CCM_ATTRIBUTE {
     uint16_t value = 0;
     switch (state_) {
       case State::kClearCs: {
@@ -85,11 +86,14 @@ class CuiAmt22 {
             (value >>  0 & 1))
         ) {
           // parity failed, just wait for the next sample
+          status->checksum_errors++;
           state_ = State::kClearCs;
           return false;
         }
 
-        *value_ptr = value & 0x3fff;
+        status->value = value & 0x3fff;
+        status->active = true;
+        status->nonce++;
         state_ = State::kClearCs;
         return true;
       }
