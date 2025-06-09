@@ -340,7 +340,7 @@ class AuxPort {
         __disable_irq();
         status_.error = aux::AuxError::kNone;
 
-        cui_amt22_.emplace(*cui_amt22_options_, timer_);
+        cui_amt22_.emplace(*cui_amt22_options_);
         AddSampleType(SampleType::kCuiAmt22, true, true);
 
         __enable_irq();

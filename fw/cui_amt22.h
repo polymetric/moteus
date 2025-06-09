@@ -29,35 +29,28 @@ class CuiAmt22 {
  public:
   using Options = Stm32Spi::Options;
 
-  CuiAmt22(const Options& options, MillisecondTimer* timer)
+  CuiAmt22(const Options& options)
       : spi_([&]() {
                auto options_copy = options;
                options_copy.width = 8;
                options_copy.mode = 0;
                return options_copy;
              }()),
-        cs_(std::in_place_t(), options.cs, 1),
-        timer_(timer) {
+        cs_(std::in_place_t(), options.cs, 1) {
   }
 
   /// @return true if we finished reading the sensor and updated the value
   bool ISR_Update(uint32_t* value_ptr) MOTEUS_CCM_ATTRIBUTE {
-    const uint32_t now_us = timer_->read_us();                
-    const uint32_t delta_us = (now_us - last_byte_finished_us_);
     uint16_t value = 0;
     switch (state_) {
       case State::kClearCs: {
-        if (delta_us >= AMT22_TIME_BETWEEN_READS) {
           cs_->clear();
           state_ = State::kStartFirstByte;
-        }
         return false;
       }
       case State::kStartFirstByte: {
-        if (delta_us >= AMT22_TIME_AFTER_CS) {
           spi_.start_byte(0x00);
           state_ = State::kStartSecondByte;
-        }
         return false;
       }
 			case State::kStartSecondByte: {
@@ -68,7 +61,6 @@ class CuiAmt22 {
       }
       case State::kFinishSecondByte: {
         buffer_[1] = spi_.finish_byte();
-        last_byte_finished_us_ = now_us;
         cs_->set();
         value = 
           ((static_cast<uint16_t>(buffer_[0]) << 8)
@@ -88,7 +80,6 @@ class CuiAmt22 {
  private:
   Stm32Spi spi_;
   std::optional<Stm32DigitalOutput> cs_;
-  MillisecondTimer* const timer_;
 
 	enum class State {
 	  kClearCs,
