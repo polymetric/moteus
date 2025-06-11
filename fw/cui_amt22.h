@@ -67,6 +67,8 @@ class CuiAmt22 {
           ((static_cast<uint16_t>(buffer_[0]) << 8)
           | static_cast<uint16_t>(buffer_[1]));
 
+        // Check parity - from page 2 of the datasheet:
+        // https://www.sameskydevices.com/product/resource/amt22.pdf
         const bool received_even_parity = value >> 14 & 1;
         const bool received_odd_parity = value >> 15 & 1;
 
@@ -89,10 +91,9 @@ class CuiAmt22 {
             (value >>  0 & 1)
         );
 
-        // check parity
         if (received_odd_parity != calculated_odd_parity ||
             received_even_parity != calculated_even_parity) {
-          // parity failed, just wait for the next sample
+          // Parity failed, just wait for the next sample
           status->checksum_errors++;
           state_ = State::kClearCs;
           return false;
