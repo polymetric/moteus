@@ -1011,6 +1011,8 @@ class AuxPort {
         }
         case aux::Spi::Config::kCuiAmt22: {
           CuiAmt22::Options options = spi_options;
+          if (options.frequency > 2000000) options.frequency = 2000000;
+          if (options.frequency < 600000) options.frequency = 600000;
           options.timeout = 2000;
           cui_amt22_options_ = options;
 
