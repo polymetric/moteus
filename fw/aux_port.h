@@ -1011,6 +1011,13 @@ class AuxPort {
         }
         case aux::Spi::Config::kCuiAmt22: {
           CuiAmt22::Options options = spi_options;
+          // The max limit is 2Mbps per the datasheet.  The minimum limit is set to ensure
+          // there is sufficient setup time between each of:
+          // Tclk: CS_low -> SPI: 2.5us
+          // Tb: between bytes: 2.5us
+          // Tr: SPI -> CS_high: 3us
+          // Tcs: CS_low -> CS_low: 40us
+          // assuming that each step is taken once per ISR and the maximum ISR rate is 30kHz.
           if (options.frequency > 2000000) options.frequency = 2000000;
           if (options.frequency < 600000) options.frequency = 600000;
           options.timeout = 2000;
