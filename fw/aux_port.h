@@ -1018,8 +1018,8 @@ class AuxPort {
           // Tr: SPI -> CS_high: 3us
           // Tcs: CS_low -> CS_low: 40us
           // assuming that each step is taken once per ISR and the maximum ISR rate is 30kHz.
-          if (options.frequency > 2000000) options.frequency = 2000000;
-          if (options.frequency < 600000) options.frequency = 600000;
+          if (options.frequency > 2000000) { options.frequency = 2000000; }
+          if (options.frequency < 600000) { options.frequency = 600000; }
           options.timeout = 2000;
           cui_amt22_options_ = options;
 
