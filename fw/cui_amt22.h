@@ -124,12 +124,7 @@ class CuiAmt22 {
   };
 
   State state_ = State::kClearCs;
-  uint32_t last_byte_finished_us_ = 0;
   uint8_t buffer_[2] = {};
-
-  static constexpr uint32_t AMT22_TIME_BETWEEN_READS = 40;
-  static constexpr uint32_t AMT22_TIME_BETWEEN_BYTES = 3;
-  static constexpr uint32_t AMT22_TIME_AFTER_CS = 3;
 };
 
 }
