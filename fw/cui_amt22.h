@@ -63,6 +63,13 @@ class CuiAmt22 {
       case State::kFinishSecondByte: {
         buffer_[1] = spi_.finish_byte();
         cs_->set();
+
+        if (n_ignored_samples < 1) {
+          n_ignored_samples++;
+          state_ = State::kClearCs;
+          return false;
+        }
+
         value =
           ((static_cast<uint16_t>(buffer_[0]) << 8)
           | static_cast<uint16_t>(buffer_[1]));
@@ -125,6 +132,7 @@ class CuiAmt22 {
 
   State state_ = State::kClearCs;
   uint8_t buffer_[2] = {};
+  uint16_t n_ignored_samples = 0;
 };
 
 }
