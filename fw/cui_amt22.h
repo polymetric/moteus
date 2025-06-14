@@ -64,8 +64,8 @@ class CuiAmt22 {
         buffer_[1] = spi_.finish_byte();
         cs_->set();
 
-        if (n_ignored_samples < 1) {
-          n_ignored_samples++;
+        if (n_ignored_samples_ < 1) {
+          n_ignored_samples_++;
           state_ = State::kClearCs;
           return false;
         }
@@ -132,7 +132,7 @@ class CuiAmt22 {
 
   State state_ = State::kClearCs;
   uint8_t buffer_[2] = {};
-  uint16_t n_ignored_samples = 0;
+  uint16_t n_ignored_samples_ = 0;
 };
 
 }
