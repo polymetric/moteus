@@ -27,6 +27,7 @@
 #include "mjlib/micro/telemetry_manager.h"
 
 #include "fw/aksim2.h"
+#include "fw/aksim2_biss.h"
 #include "fw/as5047.h"
 #include "fw/aux_adc.h"
 #include "fw/aux_common.h"
@@ -124,6 +125,10 @@ class AuxPort {
           ic_pz_->ISR_StartSample();
           break;
         }
+        case SampleType::kAksim2Biss: {
+          aksim2biss_->ISR_StartSample();
+          break;
+        }
         case SampleType::kNone: {
           return;
         }
@@ -218,6 +223,10 @@ class AuxPort {
         }
         case SampleType::kAksim2: {
           aksim2_->ISR_Update(&status_.uart);
+          break;
+        }
+        case SampleType::kAksim2Biss: {
+          aksim2biss_->ISR_MaybeFinishSample(&status_.spi);
           break;
         }
         case SampleType::kCuiAmt21: {
@@ -347,6 +356,21 @@ class AuxPort {
       }
     }
 
+    if (!aksim2biss_ && aksim2biss_options_) {
+      if (timer_->read_ms() > 10) {
+        __disable_irq();
+        status_.error = aux::AuxError::kNone;
+        aksim2biss_.emplace(*aksim2biss_options_);
+        if (status_.spi.aksim2_err) {
+          status_.error = aux::AuxError::kMaXXXConfigError;
+        } else {
+          AddSampleType(SampleType::kAksim2Biss, true, true);
+        }
+
+        __enable_irq();
+      }
+    }
+
     if (ic_pz_) {
       ic_pz_->PollMillisecond();
     }
@@ -419,6 +443,7 @@ class AuxPort {
     kAksim2 = 8,
     kCuiAmt21 = 9,
     kI2c = 10,
+    kAksim2Biss = 12,
 
     kLastEntry,
   };
@@ -796,6 +821,8 @@ class AuxPort {
     ma732_.reset();
     ma732_options_.reset();
     onboard_cs_.reset();
+    aksim2biss_.reset();
+    aksim2biss_options_.reset();
 
     bool updated_any_isr = false;
 
@@ -986,6 +1013,15 @@ class AuxPort {
           AS5047::Options options = spi_options;
           options.timeout = 200;
           as5047_options_ = options;
+
+          break;
+        }
+        case aux::Spi::Config::kAksim2Biss: {
+          Aksim2Biss::Options options = spi_options;
+          options.timeout = 2000;
+          options.rx_dma = dma_channels_[0];
+          options.tx_dma = dma_channels_[1];
+          aksim2biss_options_ = options;
 
           break;
         }
@@ -1330,6 +1366,9 @@ class AuxPort {
 
   std::optional<IcPz> ic_pz_;
   std::optional<DigitalOut> onboard_cs_;
+
+  std::optional<Aksim2Biss> aksim2biss_;
+  std::optional<Aksim2Biss::Options> aksim2biss_options_;
 
   std::array<std::optional<DigitalIn>,
              aux::AuxConfig::kNumPins> digital_inputs_;

@@ -180,7 +180,9 @@ class Stm32Spi {
   void finish_dma_transfer() MOTEUS_CCM_ATTRIBUTE {
     auto* const spi = spi_.spi.handle.Instance;
 
-    while (!is_dma_finished());
+    uint16_t timeout = options_.timeout;
+
+    while (!is_dma_finished() && timeout) { timeout--; }
 
     options_.rx_dma->CCR &= ~(DMA_CCR_EN);
     options_.tx_dma->CCR &= ~(DMA_CCR_EN);
