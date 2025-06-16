@@ -32,10 +32,10 @@ class Aksim2Biss {
   }
 
   void ISR_StartSample() /*MOTEUS_CCM_ATTRIBUTE*/ {
-    StartDma(6);
+    StartDma(5);
   }
 
-  void ISR_MaybeFinishSample(aux::Spi::Status *status) /*MOTEUS_CCM_ATTRIBUTE*/ {
+  void ISR_MaybeFinishSampe(aux::Spi::Status *status) MOTEUS_CCM_ATTRIBUTE {
     if (!spi_.is_dma_finished()) { return; }
     spi_.finish_dma_transfer();
 
@@ -63,7 +63,7 @@ class Aksim2Biss {
   }
 
  private:
-  void StartDma(int size) /*MOTEUS_CCM_ATTRIBUTE*/ {
+  void StartDma(int size) MOTEUS_CCM_ATTRIBUTE {
     spi_.start_dma_transfer(
         std::string_view(
             reinterpret_cast<const char*>(&tx_buffer_[0]), size),
@@ -100,8 +100,8 @@ class Aksim2Biss {
     return (~b_CRC) & 0x3F;
   }
 
-  const uint8_t tx_buffer_[6] = {};
-  uint8_t rx_buffer_[6] = {};
+  const uint8_t tx_buffer_[5] = {};
+  uint8_t rx_buffer_[5] = {};
 
   Stm32Spi spi_;
 };
