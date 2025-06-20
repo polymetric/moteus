@@ -32,10 +32,10 @@ class Aksim2Biss {
   }
 
   void ISR_StartSample() /*MOTEUS_CCM_ATTRIBUTE*/ {
-    StartDma(5);
+    StartDma(6);
   }
 
-  void ISR_MaybeFinishSampe(aux::Spi::Status *status) MOTEUS_CCM_ATTRIBUTE {
+  void ISR_MaybeFinishSample(aux::Spi::Status *status) MOTEUS_CCM_ATTRIBUTE {
     if (!spi_.is_dma_finished()) { return; }
     spi_.finish_dma_transfer();
 
@@ -100,8 +100,8 @@ class Aksim2Biss {
     return (~b_CRC) & 0x3F;
   }
 
-  const uint8_t tx_buffer_[5] = {};
-  uint8_t rx_buffer_[5] = {};
+  const uint8_t tx_buffer_[6] = {};
+  uint8_t rx_buffer_[6] = {};
 
   Stm32Spi spi_;
 };
